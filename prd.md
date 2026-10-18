@@ -8,8 +8,8 @@ The current prototype lives in `game.html` and runs as a standalone page with no
 
 ## Core gameplay loop
 
-1. Start a run as the Classic ball with the Mint skin, 100 HP, and 200 credits for an initial box roll.
-2. Watch the ball move automatically, bounce off arena walls, and attack with two orbiting knives; automatically shoot at the nearest bot only after unlocking Shooting. Movement cannot be controlled by the player.
+1. Start a run unarmed as the Classic ball with the Mint appearance, no owned or equipped upgrades, 100 HP, and 200 credits for an initial box roll.
+2. Watch the ball move automatically, bounce off arena walls, and deal collision damage, use knives only when unlocked and equipped; automatically shoot at the nearest bot only after unlocking Shooting. Movement cannot be controlled by the player.
 3. Eliminate bots to earn XP and credits.
 4. Spend credits to open boxes and receive random rewards.
 5. Clear waves, level up, and face stronger bots until health reaches zero.
@@ -17,7 +17,7 @@ The current prototype lives in `game.html` and runs as a standalone page with no
 
 ## Combat and waves
 
-The starting weapon is a pair of orbiting knives. Knives remain active after Shooting is unlocked. Bots never shoot. They move automatically in random starting directions, bounce off all four arena borders, and attack with two orbiting knives, dealing `8 + level × 2` damage per hit with a 0.55-second per-bot cooldown.
+The player starts unarmed with no upgrades equipped. Body collisions deal 12 base damage, plus 7 per Damage rank and the active type modifier, with a 0.5-second per-bot cooldown. Contact still damages the player. Knives and Shooting must be rolled and explicitly equipped; both may be used together. Bots never shoot. They move automatically in random starting directions, bounce off all four arena borders, and attack with two orbiting knives, dealing `8 + level × 2` damage per hit with a 0.55-second per-bot cooldown.
 
 - Use a compact 400 × 300 arena with a top-down view, visible projectiles, bot health bars, and hit particles.
 - Bots also move continuously, reflect their direction at each wall, and remain fully inside the arena. Their movement speed increases with player level.
@@ -55,7 +55,7 @@ Boxes are the way to obtain upgrades, ball types, and skins. There is no direct 
 - Keep the claim button disabled while the reel is spinning. Respect reduced-motion preferences by disabling the reel tick animation.
 - Keep combat frozen until the player selects **Back to battle**. Preserve an existing manual pause.
 - New types and skins unlock in the loadout menu; the current selection remains equipped. Duplicate types or skins award 20 credits instead.
-- Rewards, ownership, upgrades, XP, and credits reset when a new run starts. There is no saved progression in this version.
+- Levels, XP, credits, wave, eliminations, ownership, and equipped loadout persist across death and browser reloads using local browser storage. Continue restarts the current wave with full health and shield; enemies and projectiles reset.
 
 | Reward category | Chance | Selection |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ Boxes are the way to obtain upgrades, ball types, and skins. There is no direct 
 
 ### Upgrades
 
-The box pool contains 30 upgrades across eight rarity tiers within the 50% upgrade category. Roll a rarity tier first, then select uniformly among upgrades in that tier. All stack; explicit caps are shown below. Shooting-related upgrades can be rolled before Shooting and become active when it is unlocked. The panel includes a full collection guide and a list of acquired ranks.
+The box pool contains 280 upgrades across eight rarity tiers within the 50% upgrade category. Roll a rarity tier first, then select uniformly among upgrades in that tier. All stack; explicit caps are shown below. Shooting-related upgrades can be rolled before Shooting and become active when it is unlocked. The panel includes a full collection guide and a list of acquired ranks.
 
 | Upgrade | Effect per rank |
 | --- | --- |
@@ -74,7 +74,7 @@ The box pool contains 30 upgrades across eight rarity tiers within the 50% upgra
 | Speed | Add 22 movement speed. |
 | Max health | Add 30 max HP and restore 45 HP. |
 | Shooting | Unlock automatic shots; later ranks add 5 shot damage. |
-| Extra knives | Add another orbiting knife (maximum 14). |
+| Extra knives | First rank unlocks two orbiting knives; later ranks add one (maximum 14). |
 | Knife reach | Extend knife orbit by 4 units (maximum +40). |
 | Sharp blades | Add 6 knife damage. |
 | Critical chance | Add 5% critical chance (maximum 75%). |
@@ -100,7 +100,7 @@ The box pool contains 30 upgrades across eight rarity tiers within the 50% upgra
 | Piercing | With Shooting: pass through one extra bot per rank. |
 | Explosive shots | With Shooting: impacts deal 5 splash damage per rank within 45 units. |
 
-Direct knife and projectile hits apply criticals, lifesteal, poison, burn, and frost. Damage over time, aura, reflected damage, and splash do not recursively trigger these effects. Shields absorb damage after plating and refill each wave. All upgrades reset on a new run. Bot weapons remain knives only.
+Direct knife and projectile hits apply criticals, lifesteal, poison, burn, and frost. Damage over time, aura, reflected damage, and splash do not recursively trigger these effects. Shields absorb damage after plating and refill each wave. All upgrades persist until Regen. Bot weapons remain knives only.
 
 ### Upgrade rarities
 
@@ -119,15 +119,25 @@ Boxes remain 50% upgrade, 25% ball type, 25% skin. Within upgrades, roll the tie
 | Mythic | #ff7cad | 0.45% | 0.225% | Damage aura |
 | Secret | #ff9466 | 0.05% | 0.025% | Explosive shots |
 
+### Weapon appearance
+
+Equipping or unequipping gear immediately updates the visible weapon and its name in the loadout summary. Classic uses knives, Titan uses broad cleavers, Comet uses slim daggers, and Pulse uses glowing blade shapes. These visual changes preserve the documented combat stats and hit ranges.
+
+- Fire, Poison, Frost, Lifesteal, and Damage aura tint and glow the blades. Multiple effects show combined colored blade markings.
+- The selected skin colors knife guards, outlines, and cannon accents.
+- Extra knives changes blade count; Knife reach changes their orbit. Sharp blades adds an edge marking.
+- Shooting adds a visible cannon; Multishot adds barrels, while Explosive shots and Piercing change muzzle colors. Removing Shooting removes the cannon.
+- Each active upgrade adds a socket in its rarity color around the weapon ring, including defensive and economy upgrades. Socket visuals do not add combat effects.
+
 ### Equipment selection
 
 - The loadout menu offers dropdowns for owned ball types and skins and a checkbox for each owned upgrade.
 - Only owned equipment is selectable. Choices apply immediately during a run, including while manually paused, and are locked during box reveals or after game over.
-- New upgrades start equipped. Repeated rolls increase owned ranks. If an upgrade is unequipped, further rolls leave it unequipped until the player enables it.
+- New upgrades start unequipped and must be enabled in the loadout menu. Repeated rolls increase owned ranks. If an upgrade is unequipped, further rolls leave it unequipped until the player enables it.
 - Equipping an upgrade activates all owned ranks; unequipping retains ownership but removes its ongoing effects. There is no limit on equipped upgrade types.
 - Unequipping Max health clamps current HP to the reduced maximum. Re-equipping does not heal. Shield toggles do not refill shield; it refills on a new wave or increases from an equipped Shield reward.
 - Unequipping Shooting clears existing player projectiles. Previously applied poison, burn, and frost timers expire normally; their damage and slow effects depend on currently equipped ranks.
-- Rewards such as credits and prior healing are retained when the related upgrade is unequipped. Loadout and ownership reset on restart.
+- Rewards such as credits and prior healing are retained when the related upgrade is unequipped. Loadout and ownership persist across death and restart; Regen resets them.
 
 ### Ball types
 
@@ -149,7 +159,7 @@ Skins change the player's ball color without affecting combat stats. Mint is the
 | Input | Action |
 | --- | --- |
 | Automatic | Move continuously and bounce off walls |
-| Automatic | Fight with two orbiting knives; shoot at the nearest bot only with the Shooting upgrade |
+| Automatic | Deal collision damage; use knives and shots only after unlocking and equipping them |
 | Open box / Back to battle | Roll and claim rewards |
 | P or Pause button | Pause or resume |
 
@@ -169,7 +179,7 @@ Keyboard, mouse, and touch inputs do not steer the ball or control its attacks. 
 
 - A new run begins with the documented starting state and enough credits for one box.
 - The player ball moves without input, bounces off all four walls, and stays within arena bounds.
-- Two visible knives orbit the ball and damage bots on contact, with a 0.3-second per-bot hit cooldown.
+- A fresh run has no player knives or cannon. Equipped Knives adds two visible orbiting blades at rank 1, with further ranks adding blades; knife hits have a 0.3-second per-bot cooldown.
 - Bots use knives only and never fire projectiles.
 - The player fires no projectiles until Shooting is rolled from a box. Once unlocked, shots automatically target the nearest bot.
 - Keyboard, mouse, and touch cannot steer the ball.
@@ -180,8 +190,44 @@ Keyboard, mouse, and touch inputs do not steer the ball or control its attacks. 
 - Stat upgrades stack, ball types affect gameplay, and skins affect appearance only.
 - Duplicate types or skins grant exactly 20 credits.
 - No combat or damage occurs while paused or during a box reveal.
-- Restarting resets the run, including all rewards and ownership.
+- Death, Continue, and reload retain level, XP, credits, wave, eliminations, ownership, and equipment.
+- Regen remains locked until all 280 upgrades, 4 ball types, and 655 skins are owned.
+- Confirmed Regen clears progression and equipment, restores 200 starting credits, and increments the saved Regen count.
 
 ## Current validation status
 
 HTML parsing and referenced element IDs have been checked. Browser gameplay, touch controls, reward outcomes, and difficulty balance still require interactive testing.
+
+## Saved progression and Regen
+
+Progress saves automatically in this browser. Health, active enemies, and projectiles are not saved. Continue restores full health and equipped shield capacity while restarting the current wave. Saving failures show a message; progress then remains available only in the open page.
+
+Unlock all 939 collection entries (at least rank 1 of every upgrade plus all types and skins) to enable Regen. Equipping every item or reaching rank caps is not required. The panel shows collection progress and Regen count. Regen is optional and requires confirmation, then resets level, XP, credits, eliminations, wave, owned gear, and equipped choices. Start again at level 1, wave 1, unarmed with 200 credits. The Regen count persists; no additional stat bonus is granted.
+
+Closing during a box animation leaves the previously saved credits intact. Once the reward is revealed, both its cost and reward are saved together.
+
+## Expanded content library
+
+`content.js` adds exactly 1,000 entries with stable save-compatible IDs: 250 upgrade variants, 650 skins, and 100 bot profiles. Totals are 280 upgrades, 655 skins, four ball types, and 100 named bot profiles. Existing saved gear remains valid. Regen requires all 939 collectible entries; bots are opponents, not collectible rewards.
+
+Upgrade variants combine nine material families with the original 30 effects. Each provides one, two, or three effective ranks of its base effect per equipped rank and shares that effect's rarity tier. Variants stack with the original upgrade, retain the original caps, and remain individually equippable. Category and rarity-tier chances are unchanged; specific item odds adjust to the expanded pools.
+
+New skins have unique names and deterministic colors plus stripes, dots, rings, diamonds, or cross patterns. They appear in mystery boxes and the owned-skin selector and affect cosmetic appearance only.
+
+Bots have unique names, colors, sizes, one to three knives, and health, speed, damage, and knife-rotation multipliers. Profiles unlock for spawning in groups of five per player level through level 20. Spawn uniformly among eligible profiles; all bots retain bouncing movement and knife-only attacks. The panel includes a directory with unlock levels and combat stats.
+
+## Bot equipment follows player experience
+
+Fresh level-1 players face plain gray, unarmed bots. Bots still bounce and deal body-contact damage, so the player can earn XP without weapons. Saved player levels retain the corresponding bot equipment difficulty; Regen returns bots to the unarmed tier.
+
+| Player level | Bot equipment |
+| --- | --- |
+| 1 | No weapons or cosmetic skin |
+| 2–4 | Basic knives and profile colors |
+| 5–8 | Twin-edge styling and patterned skins |
+| 9–13 | Glowing crystal blades and patterned skins |
+| 14+ | Glowing plasma blades and patterned skins |
+
+Knife count is zero at level 1, then `min(6, 1 + floor((level - 2) / 3))`. Knife reach grows by equipment tier. Existing bots update their gear immediately on player level-up, and new bots spawn with the current tier. Weapon names and skin details are visible on the bots; the side panel describes the current equipment tier. Bots continue using melee only and never shoot.
+
+This equipment progression overrides the earlier fixed bot blade counts; bot profile health, movement, damage, and rotation differences remain active.
