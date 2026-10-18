@@ -10,7 +10,7 @@ The current prototype lives in `game.html` and runs as a standalone page with no
 
 1. Start a run unarmed as the Classic ball with the Mint appearance, no owned or equipped upgrades, 100 HP, and 200 credits for an initial box roll.
 2. Watch the ball move automatically, bounce off arena walls, and deal collision damage, use knives only when unlocked and equipped; automatically shoot at the nearest bot only after unlocking Shooting. Movement cannot be controlled by the player.
-3. Eliminate bots to earn XP and credits.
+3. Eliminate bots for credits; complete the round to earn XP.
 4. Spend credits to open boxes and receive random rewards.
 5. Clear waves, level up, and face stronger bots until health reaches zero.
 6. Review the final level, wave, and eliminations, then restart.
@@ -31,7 +31,8 @@ The player starts unarmed with no upgrades equipped. Body collisions deal 12 bas
 
 - Start at level 1 with zero XP.
 - XP required for the next level: `60 + (level - 1) × 35`.
-- Each elimination awards `22 + level × 3` XP and `15 + level × 3` credits, using the level at the time of the award.
+- Eliminations award credits only: `15 + level × 3`, plus Bounty bonuses.
+- Completing round `r` awards `40 + r × 10` XP, multiplied by `1 + 0.15 × equipped Wisdom ranks` and rounded to an integer. First-round base XP is 50, then 60, 70, and so on.
 - Leveling up grants 30 credits and restores 25 HP, capped at maximum health.
 - Higher levels increase bot health, movement speed, knife damage, knife rotation speed.
 - Bot health is determined when a bot spawns; other difficulty values use the current player level.
@@ -91,7 +92,7 @@ The box pool contains 280 upgrades across eight rarity tiers within the 50% upgr
 | Damage aura | Deal 3 damage/second per rank to bots within 65 units. |
 | Execution | Deal 15% more damage per rank to bots below 30% health. |
 | Bounty | Earn 4 extra credits per kill per rank. |
-| Wisdom | Earn 15% more XP per rank. |
+| Wisdom | Earn 15% more round-completion XP per rank. |
 | Salvage | Duplicate refunds increase by 15 credits per rank. |
 | Wave medic | Heal 10 additional HP per rank after each wave. |
 | Victory heal | Restore 2 HP per kill per rank. |
@@ -185,7 +186,8 @@ Keyboard, mouse, and touch inputs do not steer the ball or control its attacks. 
 - Keyboard, mouse, and touch cannot steer the ball.
 - Hits, eliminations, and game over work during automatic battles.
 - Clearing a wave advances the wave and heals the player without exceeding maximum HP.
-- Earning enough XP increases the player level, grants the level reward, and raises bot difficulty.
+- Killing a bot awards no XP. Finishing a round awards XP exactly once, increasing with round number.
+- Earning enough round-completion XP increases the player level, grants the level reward, and raises bot difficulty.
 - A box deducts exactly 200 credits and awards one reward according to the documented probabilities.
 - Stat upgrades stack, ball types affect gameplay, and skins affect appearance only.
 - Duplicate types or skins grant exactly 20 credits.
@@ -247,3 +249,7 @@ Players can name their ball using a field in the loadout panel. Names support up
 Damage to actual health leaves small splatters on the arena floor in the injured ball's skin color, captured at impact time. Bot stains use the bot's equipment skin color, without poison/burn/frost tint overrides. Player stains use the selected skin. Dodges, fully shield-blocked hits, and zero-damage hits leave no stains. Lethal hits produce larger splatters.
 
 Stains last 20 seconds of active gameplay, fading over the final two seconds. They remain underneath combatants across waves and freeze while paused or opening boxes. A new battle or Regen clears the arena stains; they are not saved across reloads. Continuous damage creates at most one regular stain per victim every 0.15 seconds to keep rendering responsive.
+
+## Round-based experience
+
+XP is awarded once at the end of the wave-clear break when the living player advances to the next round. Individual kills grant no XP; damage and elimination credit rewards remain unchanged. Defeat before round completion awards no round XP. Round advancement and the XP reward save together, preventing repeated rewards after a reload. Wisdom affects round XP, including its equipped variants. Level-up rewards and bot equipment milestones are unchanged.
