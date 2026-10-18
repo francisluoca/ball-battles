@@ -214,20 +214,36 @@ Upgrade variants combine nine material families with the original 30 effects. Ea
 
 New skins have unique names and deterministic colors plus stripes, dots, rings, diamonds, or cross patterns. They appear in mystery boxes and the owned-skin selector and affect cosmetic appearance only.
 
-Bots have unique names, colors, sizes, one to three knives, and health, speed, damage, and knife-rotation multipliers. Profiles unlock for spawning in groups of five per player level through level 20. Spawn uniformly among eligible profiles; all bots retain bouncing movement and knife-only attacks. The panel includes a directory with unlock levels and combat stats.
+Bots have unique names, colors, sizes, one to three knives, and health, speed, damage, and knife-rotation multipliers. Profiles unlock for spawning in groups of five every two player levels through level 39. Spawn uniformly among eligible profiles; all bots retain bouncing movement and knife-only attacks. The panel includes a directory with unlock levels and combat stats.
 
 ## Bot equipment follows player experience
 
-Fresh level-1 players face plain gray, unarmed bots. Bots still bounce and deal body-contact damage, so the player can earn XP without weapons. Saved player levels retain the corresponding bot equipment difficulty; Regen returns bots to the unarmed tier.
+Players at levels 1–4 face plain gray, unarmed bots. Bots still bounce and deal body-contact damage, so the player can earn XP without weapons. Saved player levels retain the corresponding bot equipment difficulty; Regen returns bots to the unarmed tier.
 
 | Player level | Bot equipment |
 | --- | --- |
-| 1 | No weapons or cosmetic skin |
-| 2–4 | Basic knives and profile colors |
-| 5–8 | Twin-edge styling and patterned skins |
-| 9–13 | Glowing crystal blades and patterned skins |
-| 14+ | Glowing plasma blades and patterned skins |
+| 1–4 | No weapons or cosmetic skin |
+| 5–11 | Basic knives and profile colors |
+| 12–21 | Twin-edge styling and patterned skins |
+| 22–34 | Glowing crystal blades and patterned skins |
+| 35+ | Glowing plasma blades and patterned skins |
 
-Knife count is zero at level 1, then `min(6, 1 + floor((level - 2) / 3))`. Knife reach grows by equipment tier. Existing bots update their gear immediately on player level-up, and new bots spawn with the current tier. Weapon names and skin details are visible on the bots; the side panel describes the current equipment tier. Bots continue using melee only and never shoot.
+Knife count is zero through level 4, then `min(6, 1 + floor((level - 5) / 5))`. Knife reach grows by equipment tier. Existing bots update their gear immediately on player level-up, and new bots spawn with the current tier. Weapon names and skin details are visible on the bots; the side panel describes the current equipment tier. Bots continue using melee only and never shoot.
 
 This equipment progression overrides the earlier fixed bot blade counts; bot profile health, movement, damage, and rotation differences remain active.
+
+## Small damage rewards
+
+Every 20 actual HP of damage dealt to bots earns 1 credit. Fractional progress accumulates across hits and bots, survives death and reload, and resets on Regen. This applies to collisions, knives, projectiles, poison, burn, aura, thorns, and explosions through the shared damage function. Overkill and hits on already defeated bots earn nothing extra. Splitting damage into rapid hits does not increase the payout. Existing elimination and level-up rewards remain unchanged; boxes still cost 200 credits.
+
+Bot upgrades now require longer XP progression: the first weapon unlocks at level 5 (450 cumulative XP), skins at level 12, crystal weapons at level 22, and plasma at level 35. The difficulty panel shows the next gear milestone and XP remaining. Player leveling requirements, rewards, and saves are unchanged. Bot profile unlocks slow to five additional profiles every two levels, with all profiles available at level 39.
+
+## Ball name
+
+Players can name their ball using a field in the loadout panel. Names support up to 24 characters; blank names display as My Ball. Render names as text above the player's ball and in the loadout summary. Save the name in browser storage and preserve it after death, reload, and Regen. Older saves default to My Ball. Typing in the name field must not activate the P pause shortcut.
+
+## Skin-colored impact stains
+
+Damage to actual health leaves small splatters on the arena floor in the injured ball's skin color, captured at impact time. Bot stains use the bot's equipment skin color, without poison/burn/frost tint overrides. Player stains use the selected skin. Dodges, fully shield-blocked hits, and zero-damage hits leave no stains. Lethal hits produce larger splatters.
+
+Stains last 20 seconds of active gameplay, fading over the final two seconds. They remain underneath combatants across waves and freeze while paused or opening boxes. A new battle or Regen clears the arena stains; they are not saved across reloads. Continuous damage creates at most one regular stain per victim every 0.15 seconds to keep rendering responsive.
