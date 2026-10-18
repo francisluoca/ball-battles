@@ -253,3 +253,9 @@ Stains last 20 seconds of active gameplay, fading over the final two seconds. Th
 ## Round-based experience
 
 XP is awarded once at the end of the wave-clear break when the living player advances to the next round. Individual kills grant no XP; damage and elimination credit rewards remain unchanged. Defeat before round completion awards no round XP. Round advancement and the XP reward save together, preventing repeated rewards after a reload. Wisdom affects round XP, including its equipped variants. Level-up rewards and bot equipment milestones are unchanged.
+
+## Batch box opening
+
+Offer Open 1, 5, 10, 15, and 20 at 200 credits per box. Require the full batch cost before opening. Deduct the full amount once, then display a separate numbered reel for every box in a responsive grid. All reels spin, slow down, and reveal their rewards simultaneously in one animation cycle, regardless of batch size.
+
+Each reward card shows its prize, rarity color, effect, and duplicate refund when applicable. All rewards use independent category and rarity rolls. Combat remains frozen and claiming stays disabled until every result is revealed. Save the full cost and all rewards together after the reveal; reloading mid-animation restores the previous saved balance and awards no partial batch. The dialog scrolls internally on smaller screens.
