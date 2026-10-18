@@ -17,7 +17,7 @@ The current prototype lives in `game.html` and runs as a standalone page with no
 
 ## Combat and waves
 
-The player starts unarmed with no upgrades equipped. Body collisions deal 12 base damage, plus 7 per Damage rank and the active type modifier, with a 0.5-second per-bot cooldown. Contact still damages the player. Knives and Shooting must be rolled and explicitly equipped; both may be used together. Bots never shoot. They move automatically in random starting directions, bounce off all four arena borders, and attack with two orbiting knives, dealing `8 + level × 2` damage per hit with a 0.55-second per-bot cooldown.
+The player starts unarmed with no upgrades equipped. Body collisions deal 12 base damage, plus 7 per Damage rank and the active type modifier, with a 0.5-second per-bot cooldown. Contact still damages the player. Knives and Shooting must be rolled, which auto-equips them; both may be used together. Bots never shoot. They move automatically in random starting directions, bounce off all four arena borders, and attack with two orbiting knives, dealing `8 + level × 2` damage per hit with a 0.55-second per-bot cooldown.
 
 - Use a compact 400 × 300 arena with a top-down view, visible projectiles, bot health bars, and hit particles.
 - Bots also move continuously, reflect their direction at each wall, and remain fully inside the arena. Their movement speed increases with player level.
@@ -32,7 +32,7 @@ The player starts unarmed with no upgrades equipped. Body collisions deal 12 bas
 - Start at level 1 with zero XP.
 - XP required for the next level: `60 + (level - 1) × 35`.
 - Eliminations award credits only: `15 + level × 3`, plus Bounty bonuses.
-- Completing round `r` awards `40 + r × 10` XP, multiplied by `1 + 0.15 × equipped Wisdom ranks` and rounded to an integer. First-round base XP is 50, then 60, 70, and so on.
+- Completing round `r` awards `40 + r × 10 + 5 × r × (r - 1)` XP, multiplied by `1 + 0.15 × equipped Wisdom ranks` and rounded to an integer. Base XP is 50 for wave 1, 70 for wave 2, 100 for wave 3, 140 for wave 4, and 190 for wave 5.
 - Leveling up grants 30 credits and restores 25 HP, capped at maximum health.
 - Higher levels increase bot health, movement speed, knife damage, knife rotation speed.
 - Bot health is determined when a bot spawns; other difficulty values use the current player level.
@@ -55,7 +55,7 @@ Boxes are the way to obtain upgrades, ball types, and skins. There is no direct 
 - Award exactly one reward per box and display its name and effect. Preview entries do not award items or change the category probabilities.
 - Keep the claim button disabled while the reel is spinning. Respect reduced-motion preferences by disabling the reel tick animation.
 - Keep combat frozen until the player selects **Back to battle**. Preserve an existing manual pause.
-- New types and skins unlock in the loadout menu; the current selection remains equipped. Duplicate types or skins award 20 credits instead.
+- New types and skins auto-equip immediately and remain available in the loadout menu. Duplicate types or skins award 20 credits instead.
 - Levels, XP, credits, wave, eliminations, ownership, and equipped loadout persist across death and browser reloads using local browser storage. Continue restarts the current wave with full health and shield; enemies and projectiles reset.
 
 | Reward category | Chance | Selection |
@@ -134,7 +134,7 @@ Equipping or unequipping gear immediately updates the visible weapon and its nam
 
 - The loadout menu offers dropdowns for owned ball types and skins and a checkbox for each owned upgrade.
 - Only owned equipment is selectable. Choices apply immediately during a run, including while manually paused, and are locked during box reveals or after game over.
-- New upgrades start unequipped and must be enabled in the loadout menu. Repeated rolls increase owned ranks. If an upgrade is unequipped, further rolls leave it unequipped until the player enables it.
+- Every rolled upgrade auto-equips all owned ranks, including when it was previously unequipped. Repeated rolls increase owned ranks. Players can unequip it afterward.
 - Equipping an upgrade activates all owned ranks; unequipping retains ownership but removes its ongoing effects. There is no limit on equipped upgrade types.
 - Unequipping Max health clamps current HP to the reduced maximum. Re-equipping does not heal. Shield toggles do not refill shield; it refills on a new wave or increases from an equipped Shield reward.
 - Unequipping Shooting clears existing player projectiles. Previously applied poison, burn, and frost timers expire normally; their damage and slow effects depend on currently equipped ranks.
@@ -142,7 +142,7 @@ Equipping or unequipping gear immediately updates the visible weapon and its nam
 
 ### Ball types
 
-Only one ball type is active at a time. Use the Ball type dropdown to choose any owned type, including Classic. New unlocks do not replace the current selection.
+Only one ball type is active at a time. Use the Ball type dropdown to choose any owned type, including Classic. Rolled rewards replace the current selection automatically.
 
 | Type | Effect |
 | --- | --- |
@@ -153,7 +153,7 @@ Only one ball type is active at a time. Use the Ball type dropdown to choose any
 
 ### Skins
 
-Skins change the player's ball color without affecting combat stats. Mint is the starting skin. Boxes can award Solar Gold, Nebula Violet, Arctic Blue, or Rose Quartz. Use the Skin dropdown to choose any owned skin, including Mint. New unlocks do not replace the current selection.
+Skins change the player's ball color without affecting combat stats. Mint is the starting skin. Boxes can award Solar Gold, Nebula Violet, Arctic Blue, or Rose Quartz. Use the Skin dropdown to choose any owned skin, including Mint. Rolled rewards replace the current selection automatically.
 
 ## Controls
 
@@ -186,7 +186,7 @@ Keyboard, mouse, and touch inputs do not steer the ball or control its attacks. 
 - Keyboard, mouse, and touch cannot steer the ball.
 - Hits, eliminations, and game over work during automatic battles.
 - Clearing a wave advances the wave and heals the player without exceeding maximum HP.
-- Killing a bot awards no XP. Finishing a round awards XP exactly once, increasing with round number.
+- Killing a bot awards no XP. Finishing a round awards XP exactly once, increasing faster with higher wave numbers.
 - Earning enough round-completion XP increases the player level, grants the level reward, and raises bot difficulty.
 - A box deducts exactly 200 credits and awards one reward according to the documented probabilities.
 - Stat upgrades stack, ball types affect gameplay, and skins affect appearance only.
@@ -259,3 +259,13 @@ XP is awarded once at the end of the wave-clear break when the living player adv
 Offer Open 1, 5, 10, 15, and 20 at 200 credits per box. Require the full batch cost before opening. Deduct the full amount once, then display a separate numbered reel for every box in a responsive grid. All reels spin, slow down, and reveal their rewards simultaneously in one animation cycle, regardless of batch size.
 
 Each reward card shows its prize, rarity color, effect, and duplicate refund when applicable. All rewards use independent category and rarity rolls. Combat remains frozen and claiming stays disabled until every result is revealed. Save the full cost and all rewards together after the reveal; reloading mid-animation restores the previous saved balance and awards no partial batch. The dialog scrolls internally on smaller screens.
+
+## Automatic reward equipment
+
+Every revealed box reward auto-equips immediately. Upgrade rewards activate all owned ranks, even if previously unequipped. Ball types and skins become the active selection; duplicate types and skins also equip and still grant their credit refund. Batch rewards apply in numbered box order, so the last type and last skin rolled become active; all upgrade rewards stay equipped together. Changes save with the reward and remain manually editable afterward.
+
+Higher waves award progressively more XP using `40 + 10w + 5w(w - 1)` before Wisdom bonuses. The arena HUD shows the exact completion reward for the current wave, including equipped Wisdom. Rewards still require completing the wave; kills award no XP.
+
+## Local server
+
+Run `python3 server.py` and open `http://127.0.0.1:8000` for the title screen. The Python standard-library server serves game assets on loopback only and supports `--port`. This is static hosting, not multiplayer or server-side accounts. Progress remains browser-local and is specific to the URL origin; file-based and HTTP saves are separate.
